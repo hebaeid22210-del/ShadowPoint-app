@@ -188,7 +188,6 @@ if nav_choice == "🏠 Home Dashboard":
     st.title(f"🏢 Welcome, {st.session_state.get('company')}!")
     st.write("GCC Lead Generation & Business Intelligence Hub")
     
-    # Overview Metrics
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Total Enterprise Companies", len(df_all))
     m2.metric("GCC Regions Covered", "6 Countries")
@@ -210,7 +209,7 @@ if nav_choice == "🏠 Home Dashboard":
             df_saved = pd.DataFrame(st.session_state["saved_companies"])
             st.dataframe(df_saved[["Company Name", "Industry", "Phone", "Website"]], use_container_width=True)
         else:
-            st.info("No saved companies yet. Go to 'Search & Filter Leads' to bookmark companies.")
+            st.info("No saved companies yet. Check the 'Mark to Save' column in Search & Filter.")
 
 # ==========================================
 # PAGE 2: SEARCH & FILTER LEADS
@@ -278,32 +277,48 @@ elif nav_choice == "🔍 Search & Filter Leads":
     if selected_needs:
         filtered_df = filtered_df[filtered_df["Needs"].isin(selected_needs)]
 
-    # DISPLAY RESULTS TABLE
-    st.markdown("### 📋 Matching Leads")
-    st.dataframe(filtered_df, use_container_width=True)
+    # ADD CHECKBOX "MARK TO SAVE" COLUMN TO TABLE
+    saved_names = [c["Company Name"] for c in st.session_state["saved_companies"]]
+    filtered_df["Mark to Save"] = filtered_df["Company Name"].apply(lambda name: name in saved_names)
 
-    # SAVE TO LIST SECTION
-    st.markdown("### ⭐ Save Companies to Your List")
-    col_save1, col_save2 = st.columns([3, 1])
-    
-    with col_save1:
-        company_to_save = st.selectbox("Select a company from search results to save:", options=filtered_df["Company Name"].unique())
-    
-    with col_save2:
-        st.write(" ")
-        st.write(" ")
-        if st.button("⭐ Save Company", type="primary"):
-            row = df_all[df_all["Company Name"] == company_to_save].to_dict('records')
-            if row:
-                comp_dict = row[0]
-                if comp_dict not in st.session_state["saved_companies"]:
-                    st.session_state["saved_companies"].append(comp_dict)
-                    st.success(f"Saved {company_to_save} to your list!")
-                else:
-                    st.warning("Company already in your saved list.")
+    # REORDER COLUMNS (Put "Mark to Save" first)
+    cols = ["Mark to Save", "Company Name", "Location", "Industry", "Type", "Needs", "Phone", "Website"]
+    filtered_df = filtered_df[cols]
+
+    st.markdown("### 📋 Matching Leads (Check the box to save a company)")
+
+    # INTERACTIVE CHECKBOX TABLE
+    edited_df = st.data_editor(
+        filtered_df,
+        column_config={
+            "Mark to Save": st.column_config.CheckboxColumn(
+                "⭐ Save",
+                help="Check to bookmark this company to your saved list",
+                default=False,
+            ),
+            "Website": st.column_config.LinkColumn("Website")
+        },
+        disabled=["Company Name", "Location", "Industry", "Type", "Needs", "Phone", "Website"],
+        hide_index=True,
+        use_container_width=True,
+        key="lead_table_editor"
+    )
+
+    # UPDATE SAVED LIST BASED ON CHECKBOXES
+    new_saved_list = []
+    for index, row in edited_df.iterrows():
+        if row["Mark to Save"]:
+            comp_data = row.to_dict()
+            del comp_data["Mark to Save"]  # Remove checkbox boolean before saving
+            new_saved_list.append(comp_data)
+
+    if new_saved_list != st.session_state["saved_companies"]:
+        st.session_state["saved_companies"] = new_saved_list
+        st.toast(f"Saved List Updated! ({len(new_saved_list)} saved)", icon="⭐")
 
     # Export Data Button
-    csv_data = filtered_df.to_csv(index=False).encode('utf-8')
+    export_df = edited_df.drop(columns=["Mark to Save"])
+    csv_data = export_df.to_csv(index=False).encode('utf-8')
     st.download_button(
         label="📥 Export Filtered Leads (CSV)",
         data=csv_data,
@@ -341,4 +356,4 @@ elif nav_choice == "⭐ Saved Companies":
             mime="text/csv"
         )
     else:
-        st.info("You haven't saved any companies yet. Go to 'Search & Filter Leads' to add companies to your list.")
+        st.info("You haven't saved any companies yet. Go to 'Search & Filter Leads' and check the '⭐ Save' box on any row!")
