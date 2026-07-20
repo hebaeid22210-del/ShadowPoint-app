@@ -1,90 +1,93 @@
 import streamlit as st
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
 import urllib.parse
-import matplotlib.pyplot as plt
+from geopy.geocoders import Nominatim
 
-st.set_page_config(page_title="ShadowPoint Web Intelligence", page_icon="🌐", layout="wide")
+st.set_page_config(page_title="ShadowPoint Geo-Lead Engine", page_icon="📍", layout="wide")
 
-st.title("🌐 ShadowPoint Live Web Search & Lead Finder")
-st.write("Search any topic or domain across the live web to extract and score high-intent leads.")
+st.title("📍 ShadowPoint Location & Lead Intelligence Platform")
+st.write("Search any location worldwide to map coordinates, discover high-intent leads, and extract intelligence.")
 
 # User Inputs
-col1, col2 = st.columns([2, 1])
+col1, col2 = st.columns([2, 2])
 
 with col1:
-    search_query = st.text_input("🔍 Search Topic / Niche", value="SaaS startups looking for marketing")
+    location_input = st.text_input("🌍 Target Location / City", value="London")
 with col2:
-    keywords_str = st.text_input("🔑 Target Keywords (comma separated)", value="saas, marketing, tool, ai, growth")
+    search_query = st.text_input("🔍 Business / Lead Niche", value="AI startups")
 
-if st.button("🚀 Search Web & Analyze Leads", type="primary"):
-    if not search_query.strip():
-        st.warning("Please enter a search query.")
+if st.button("🚀 Search Location & Generate Map", type="primary"):
+    if not location_input.strip() or not search_query.strip():
+        st.warning("Please fill in both location and business niche fields.")
     else:
-        st.info(f"Scanning live web for: **{search_query}**...")
+        # Step 1: Geocode Location
+        st.info(f"Geocoding location: **{location_input}**...")
+        geolocator = Nominatim(user_agent="shadowpoint_lead_app")
         
         try:
-            # Format query for DuckDuckGo HTML search
-            encoded_query = urllib.parse.quote(search_query)
-            url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
+            loc_data = geolocator.geocode(location_input)
             
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36"
-            }
-            
-            response = requests.get(url, headers=headers, timeout=10)
-            soup = BeautifulSoup(response.text, "html.parser")
-            
-            # Extract search result blocks
-            results = []
-            keywords = [k.strip().lower() for k in keywords_str.split(",") if k.strip()]
-            
-            search_items = soup.find_all("div", class_="result__body")
-            
-            for idx, item in enumerate(search_items[:10], 1):
-                title_tag = item.find("a", class_="result__url")
-                snippet_tag = item.find("a", class_="result__snippet")
-                
-                title = item.find("a", class_="result__title").text.strip() if item.find("a", class_="result__title") else "N/A"
-                link = title_tag["href"] if title_tag and "href" in title_tag.attrs else "#"
-                snippet = snippet_tag.text.strip() if snippet_tag else ""
-                
-                # Intent scoring based on keyword match
-                combined_text = (title + " " + snippet).lower()
-                matched = [kw for kw in keywords if kw in combined_text]
-                
-                intent = "HIGH INTENT" if len(matched) >= 1 else "STANDARD"
-                
-                results.append({
-                    "Lead #": f"Lead-{idx}",
-                    "Title / Business": title,
-                    "Website / URL": link,
-                    "Matched Keywords": ", ".join(matched) if matched else "None",
-                    "Intent Score": intent,
-                    "Snippet": snippet[:100] + "..." if len(snippet) > 100 else snippet
-                })
-                
-            if not results:
-                st.error("No results found. Try a different search query.")
+            if not loc_data:
+                st.error("Could not find coordinates for this location. Please try another city.")
             else:
-                df = pd.DataFrame(results)
+                lat = loc_data.latitude
+                lon = loc_data.longitude
                 
-                # Display Results Table
-                st.subheader(f"📊 Results for '{search_query}'")
-                st.dataframe(df, use_container_width=True)
+                st.success(f"📍 Found Location: **{loc_data.address}** (Lat: {lat}, Lon: {lon})")
                 
-                # Breakdown Stats
-                high_intent_count = len(df[df["Intent Score"] == "HIGH INTENT"])
-                standard_count = len(df) - high_intent_count
+                # Step 2: Display Interactive Map
+                st.subheader("🗺️ Target Location Map")
+                map_df = pd.DataFrame({"lat": [lat], "lon": [lon]})
+                st.map(map_df, zoom=11)
                 
-                st.success(f"Found {len(df)} live search results. {high_intent_count} flagged as High Intent!")
+                # Step 3: Fetch Live Location Leads
+                st.subheader(f"🔎 Live Search Results for '{search_query}' in {location_input}")
                 
-                # Chart
-                st.subheader("📈 Lead Qualification Breakdown")
-                fig, ax = plt.subplots(figsize=(5, 3))
-                ax.pie([high_intent_count, standard_count], labels=["High Intent", "Standard"], colors=["#2E7D32", "#B0BEC5"], autopct='%1.0f%%', startangle=90)
-                st.pyplot(fig)
+                full_search = f"{search_query} in {location_input}"
+                encoded_query = urllib.parse.quote(full_search)
+                url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
                 
+                headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
+                response = requests.get(url, headers=headers, timeout=10)
+                
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(response.text, "html.parser")
+                
+                results = []
+                search_items = soup.find_all("div", class_="result__body")
+                
+                for idx, item in enumerate(search_items[:10], 1):
+                    title_elem = item.find("a", class_="result__title")
+                    snippet_elem = item.find("a", class_="result__snippet")
+                    url_elem = item.find("a", class_="result__url")
+                    
+                    title = title_elem.text.strip() if title_elem else "N/A"
+                    snippet = snippet_elem.text.strip() if snippet_elem else "N/A"
+                    link = url_elem["href"] if url_elem and "href" in url_elem.attrs else "#"
+                    
+                    results.append({
+                        "Lead #": f"Lead-{idx}",
+                        "Business Name / Title": title,
+                        "Location": location_input,
+                        "Website": link,
+                        "Snippet": snippet[:120] + "..." if len(snippet) > 120 else snippet
+                    })
+                
+                if results:
+                    df_results = pd.DataFrame(results)
+                    st.dataframe(df_results, use_container_width=True)
+                    
+                    # CSV Download Button
+                    csv_data = df_results.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        label="📥 Download Leads as CSV",
+                        data=csv_data,
+                        file_name=f"{location_input}_{search_query}_leads.csv",
+                        mime="text/csv"
+                    )
+                else:
+                    st.warning("No search results returned for this query.")
+                    
         except Exception as e:
-            st.error(f"Error fetching live results: {e}")
+            st.error(f"An error occurred: {e}")
