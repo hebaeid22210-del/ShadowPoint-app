@@ -11,7 +11,8 @@ st.set_page_config(
     page_icon="🎯",
     layout="wide"
 )
-
+# Reliable direct image link
+LOGO_URL = "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"
 # Replace this with your direct logo image URL if you have one hosted online
 LOGO_URL = "https://img.icons8.com/color/96/target-molecule.png"
 
