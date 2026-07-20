@@ -4,12 +4,12 @@ import requests
 import urllib.parse
 from bs4 import BeautifulSoup
 
-st.set_page_config(page_title="ShadowPoint GCC Intelligence", page_icon="🌐", layout="wide")
+st.set_page_config(page_title="GCC B2B Lead Generator", page_icon="🏢", layout="wide")
 
-st.title("🌐 ShadowPoint GCC Market & Lead Intelligence")
-st.write("Search and discover business leads across Saudi Arabia, UAE, Qatar, Kuwait, Bahrain, and Oman.")
+st.title("🏢 GCC B2B Lead & Industry Finder")
+st.write("Target specific industries and business needs across GCC markets.")
 
-# GCC Coordinates for Mapping
+# 1. Geographic Selection
 GCC_CITIES = {
     "Riyadh, Saudi Arabia": {"lat": 24.7136, "lon": 46.6753},
     "Jeddah, Saudi Arabia": {"lat": 21.5433, "lon": 39.1728},
@@ -21,28 +21,57 @@ GCC_CITIES = {
     "Muscat, Oman": {"lat": 23.5880, "lon": 58.3829},
 }
 
-col1, col2 = st.columns([2, 2])
+# 2. Industry Categories
+INDUSTRIES = [
+    "Manufacturing Companies",
+    "Construction & Contracting Companies",
+    "Retail & Wholesale Businesses",
+    "Software & Tech Companies",
+    "Logistics & Supply Chain Companies",
+    "Custom / Other"
+]
+
+# 3. What the Company Needs (Requirements)
+COMPANY_NEEDS = [
+    "Looking for Suppliers / Equipment",
+    "Hiring / Recruitment Needs",
+    "ERP & CRM Automation",
+    "Digital Marketing & Lead Generation",
+    "Facility & Operations Management",
+    "General Search (All Needs)"
+]
+
+col1, col2, col3 = st.columns(3)
 
 with col1:
     selected_location = st.selectbox("🌍 Select Target GCC City", list(GCC_CITIES.keys()))
-with col2:
-    search_query = st.text_input("🔍 Business Niche / Service", value="Software companies")
 
-if st.button("🚀 Find GCC Leads & Map Location", type="primary"):
+with col2:
+    selected_industry = st.selectbox("🏭 Target Industry", INDUSTRIES)
+    if selected_industry == "Custom / Other":
+        selected_industry = st.text_input("Type Custom Industry", value="Real Estate Companies")
+
+with col3:
+    selected_need = st.selectbox("🎯 Company Needs / Intent", COMPANY_NEEDS)
+
+if st.button("🚀 Search GCC Leads", type="primary"):
     coords = GCC_CITIES[selected_location]
     
-    # Show Map
-    st.subheader(f"🗺️ Target Location: {selected_location}")
+    # Map Display
+    st.subheader(f"🗺️ Target Region: {selected_location}")
     map_df = pd.DataFrame({"lat": [coords["lat"]], "lon": [coords["lon"]]})
     st.map(map_df, zoom=10)
     
-    # Fetch Search Results
-    st.info(f"Scanning market for: **{search_query}** in **{selected_location}**...")
+    # Build Search Term
+    if selected_need != "General Search (All Needs)":
+        full_search = f"{selected_industry} {selected_need} in {selected_location}"
+    else:
+        full_search = f"{selected_industry} in {selected_location}"
+        
+    st.info(f"Scanning for: **{full_search}**")
     
-    full_search = f"{search_query} in {selected_location}"
     encoded_query = urllib.parse.quote(full_search)
     url = f"https://html.duckduckgo.com/html/?q={encoded_query}"
-    
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"}
     
     try:
@@ -62,28 +91,30 @@ if st.button("🚀 Find GCC Leads & Map Location", type="primary"):
             link = url_elem["href"] if url_elem and "href" in url_elem.attrs else "#"
             
             results.append({
-                "Lead #": f"GCC-Lead-{idx}",
-                "Business Name": title,
-                "City/Country": selected_location,
+                "Lead #": f"GCC-{idx}",
+                "Company / Business Name": title,
+                "Industry": selected_industry,
+                "Target Requirement": selected_need,
+                "Location": selected_location,
                 "Website Link": link,
-                "Snippet Description": snippet[:120] + "..." if len(snippet) > 120 else snippet
+                "Details": snippet[:120] + "..." if len(snippet) > 120 else snippet
             })
             
         if results:
             df_results = pd.DataFrame(results)
-            st.subheader("📊 Identified GCC Leads")
+            st.subheader("📊 Found Leads")
             st.dataframe(df_results, use_container_width=True)
             
             # Export CSV
             csv_data = df_results.to_csv(index=False).encode('utf-8')
             st.download_button(
-                label="📥 Download GCC Leads (CSV)",
+                label="📥 Download CSV",
                 data=csv_data,
-                file_name=f"{selected_location.replace(' ', '_')}_leads.csv",
+                file_name=f"{selected_industry.replace(' ', '_')}_leads.csv",
                 mime="text/csv"
             )
         else:
-            st.warning("No search results returned. Try another niche or city.")
+            st.warning("No results found. Try broadening the search terms.")
             
     except Exception as e:
         st.error(f"Error fetching data: {e}")
