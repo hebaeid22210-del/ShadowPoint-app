@@ -5,7 +5,15 @@ import urllib.parse
 import re
 from bs4 import BeautifulSoup
 
-st.set_page_config(page_title="GCC B2B Lead Generator", page_icon="🏢", layout="wide")
+# --- CONFIG & BRANDING ---
+st.set_page_config(
+    page_title="Shadow Point | GCC B2B Lead Generator",
+    page_icon="🎯",
+    layout="wide"
+)
+
+# Replace this with your direct logo image URL if you have one hosted online
+LOGO_URL = "https://img.icons8.com/color/96/target-molecule.png"
 
 # --- 1. USER SESSION & SAVED LIST STORE ---
 if "user_db" not in st.session_state:
@@ -19,8 +27,10 @@ if "saved_companies" not in st.session_state:
 
 # --- 2. AUTHENTICATION (LOGIN / SIGNUP) ---
 if not st.session_state["logged_in"]:
-    st.title("🔐 GCC Lead & Intelligence Engine")
-    st.subheader("Sign in or register your business account to proceed.")
+    st.image(LOGO_URL, width=80)
+    st.title("🎯 Shadow Point")
+    st.subheader("GCC B2B Enterprise Lead & Intelligence Platform")
+    st.write("Sign in or register your business account to proceed.")
     
     tab1, tab2 = st.tabs(["🔑 Sign In", "📝 Create Account"])
     
@@ -37,7 +47,7 @@ if not st.session_state["logged_in"]:
             elif username and password:
                 st.session_state["logged_in"] = True
                 st.session_state["username"] = username
-                st.session_state["company"] = "GCC Enterprise Partner"
+                st.session_state["company"] = "Shadow Point Partner"
                 st.rerun()
             else:
                 st.error("Please enter both username and password.")
@@ -64,9 +74,13 @@ if not st.session_state["logged_in"]:
 
     st.stop()
 
-# --- 3. SIDEBAR NAVIGATION ---
-st.sidebar.title("📌 Navigation")
-nav_choice = st.sidebar.radio("Go to:", ["🏠 Home Dashboard", "🔍 Search & Filter Leads", "⭐ Saved Companies"])
+# --- 3. SIDEBAR BRANDING & NAVIGATION ---
+st.sidebar.image(LOGO_URL, width=60)
+st.sidebar.title("Shadow Point")
+st.sidebar.caption("GCC Lead Intelligence")
+st.sidebar.markdown("---")
+
+nav_choice = st.sidebar.radio("Navigation", ["🏠 Home Dashboard", "🔍 Search & Filter Leads", "⭐ Saved Companies"])
 
 st.sidebar.markdown("---")
 st.sidebar.markdown(f"👤 **User:** {st.session_state.get('username', 'User')}")
@@ -185,8 +199,15 @@ df_all = pd.DataFrame(PRESET_GCC_COMPANIES)
 # PAGE 1: HOME DASHBOARD
 # ==========================================
 if nav_choice == "🏠 Home Dashboard":
-    st.title(f"🏢 Welcome, {st.session_state.get('company')}!")
-    st.write("GCC Lead Generation & Business Intelligence Hub")
+    col_logo, col_title = st.columns([1, 6])
+    with col_logo:
+        st.image(LOGO_URL, width=90)
+    with col_title:
+        st.title("Shadow Point")
+        st.caption("Target Enterprise Intelligence Engine")
+
+    st.markdown("---")
+    st.write(f"Welcome back, **{st.session_state.get('company')}**! Use Shadow Point to identify key B2B leads, company requirements, and commercial contacts across the GCC.")
     
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Total Enterprise Companies", len(df_all))
@@ -209,7 +230,7 @@ if nav_choice == "🏠 Home Dashboard":
             df_saved = pd.DataFrame(st.session_state["saved_companies"])
             st.dataframe(df_saved[["Company Name", "Industry", "Phone", "Website"]], use_container_width=True)
         else:
-            st.info("No saved companies yet. Check the 'Mark to Save' column in Search & Filter.")
+            st.info("No saved companies yet. Go to 'Search & Filter Leads' to mark companies.")
 
 # ==========================================
 # PAGE 2: SEARCH & FILTER LEADS
@@ -218,12 +239,12 @@ elif nav_choice == "🔍 Search & Filter Leads":
     header_left, header_right = st.columns([2, 1])
 
     with header_left:
-        st.title("🔍 Search & Filter GCC Leads")
-        st.write("Locate enterprise companies by category, needs, or keywords.")
+        st.title("🎯 Shadow Point Lead Search")
+        st.write("Filter enterprise opportunities across GCC markets.")
 
     with header_right:
         st.write(" ")
-        search_keyword = st.text_input("🔍 Quick Keyword Search", placeholder="Type name, machinery, equipment, location...")
+        search_keyword = st.text_input("🔍 Quick Keyword Search", placeholder="Type name, machinery, equipment...")
 
     st.markdown("---")
 
@@ -277,17 +298,15 @@ elif nav_choice == "🔍 Search & Filter Leads":
     if selected_needs:
         filtered_df = filtered_df[filtered_df["Needs"].isin(selected_needs)]
 
-    # ADD CHECKBOX "MARK TO SAVE" COLUMN TO TABLE
+    # ADD CHECKBOX "MARK TO SAVE" COLUMN
     saved_names = [c["Company Name"] for c in st.session_state["saved_companies"]]
     filtered_df["Mark to Save"] = filtered_df["Company Name"].apply(lambda name: name in saved_names)
 
-    # REORDER COLUMNS (Put "Mark to Save" first)
     cols = ["Mark to Save", "Company Name", "Location", "Industry", "Type", "Needs", "Phone", "Website"]
     filtered_df = filtered_df[cols]
 
     st.markdown("### 📋 Matching Leads (Check the box to save a company)")
 
-    # INTERACTIVE CHECKBOX TABLE
     edited_df = st.data_editor(
         filtered_df,
         column_config={
@@ -304,25 +323,24 @@ elif nav_choice == "🔍 Search & Filter Leads":
         key="lead_table_editor"
     )
 
-    # UPDATE SAVED LIST BASED ON CHECKBOXES
+    # UPDATE SAVED LIST
     new_saved_list = []
     for index, row in edited_df.iterrows():
         if row["Mark to Save"]:
             comp_data = row.to_dict()
-            del comp_data["Mark to Save"]  # Remove checkbox boolean before saving
+            del comp_data["Mark to Save"]
             new_saved_list.append(comp_data)
 
     if new_saved_list != st.session_state["saved_companies"]:
         st.session_state["saved_companies"] = new_saved_list
         st.toast(f"Saved List Updated! ({len(new_saved_list)} saved)", icon="⭐")
 
-    # Export Data Button
     export_df = edited_df.drop(columns=["Mark to Save"])
     csv_data = export_df.to_csv(index=False).encode('utf-8')
     st.download_button(
         label="📥 Export Filtered Leads (CSV)",
         data=csv_data,
-        file_name="GCC_Categorized_Leads.csv",
+        file_name="ShadowPoint_Leads.csv",
         mime="text/csv"
     )
 
@@ -330,8 +348,8 @@ elif nav_choice == "🔍 Search & Filter Leads":
 # PAGE 3: SAVED COMPANIES
 # ==========================================
 elif nav_choice == "⭐ Saved Companies":
-    st.title("⭐ My Saved Companies")
-    st.write("Manage your bookmarked leads and export them anytime.")
+    st.title("⭐ Shadow Point Saved Leads")
+    st.write("Manage your bookmarked enterprise prospects.")
     
     if st.session_state["saved_companies"]:
         df_saved = pd.DataFrame(st.session_state["saved_companies"])
@@ -352,8 +370,8 @@ elif nav_choice == "⭐ Saved Companies":
         st.download_button(
             label="📥 Export Saved List (CSV)",
             data=csv_saved,
-            file_name="My_Saved_GCC_Leads.csv",
+            file_name="ShadowPoint_Saved_Leads.csv",
             mime="text/csv"
         )
     else:
-        st.info("You haven't saved any companies yet. Go to 'Search & Filter Leads' and check the '⭐ Save' box on any row!")
+        st.info("You haven't saved any companies yet. Go to 'Search & Filter Leads' and check the '⭐ Save' box!")
