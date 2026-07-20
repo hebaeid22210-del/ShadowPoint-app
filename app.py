@@ -2,12 +2,13 @@ import streamlit as st
 import pandas as pd
 import requests
 import urllib.parse
+import re
 from bs4 import BeautifulSoup
 
 st.set_page_config(page_title="GCC B2B Lead Generator", page_icon="🏢", layout="wide")
 
 st.title("🏢 GCC B2B Lead & Industry Finder")
-st.write("Target specific industries and business needs across GCC markets.")
+st.write("Target specific industries and business needs across GCC markets, complete with contact details.")
 
 # 1. Geographic Selection
 GCC_CITIES = {
@@ -64,9 +65,9 @@ if st.button("🚀 Search GCC Leads", type="primary"):
     
     # Build Search Term
     if selected_need != "General Search (All Needs)":
-        full_search = f"{selected_industry} {selected_need} in {selected_location}"
+        full_search = f"{selected_industry} contact phone number {selected_need} in {selected_location}"
     else:
-        full_search = f"{selected_industry} in {selected_location}"
+        full_search = f"{selected_industry} contact phone number in {selected_location}"
         
     st.info(f"Scanning for: **{full_search}**")
     
@@ -90,25 +91,36 @@ if st.button("🚀 Search GCC Leads", type="primary"):
             snippet = snippet_elem.text.strip() if snippet_elem else "N/A"
             link = url_elem["href"] if url_elem and "href" in url_elem.attrs else "#"
             
+            # Extract phone numbers using Regex
+            phone_pattern = r'(\+?\d{1,3}[\s-]?)?\(?\d{2,4}\)?[\s-]?\d{3,4}[\s-]?\d{3,4}'
+            found_phones = re.findall(phone_pattern, snippet)
+            phone_number = "N/A (Check Link)"
+            
+            # Match standard international phone formats
+            raw_matches = [match.group(0) for match in re.finditer(r'\+?\d[\d\s-]{8,14}\d', snippet)]
+            if raw_matches:
+                phone_number = raw_matches[0].strip()
+            
             results.append({
                 "Lead #": f"GCC-{idx}",
-                "Company / Business Name": title,
+                "Company Name": title,
+                "Phone Number": phone_number,
                 "Industry": selected_industry,
-                "Target Requirement": selected_need,
+                "Requirement": selected_need,
                 "Location": selected_location,
-                "Website Link": link,
-                "Details": snippet[:120] + "..." if len(snippet) > 120 else snippet
+                "Website": link,
+                "Snippet": snippet[:120] + "..." if len(snippet) > 120 else snippet
             })
             
         if results:
             df_results = pd.DataFrame(results)
-            st.subheader("📊 Found Leads")
+            st.subheader("📊 Found Leads & Contacts")
             st.dataframe(df_results, use_container_width=True)
             
             # Export CSV
             csv_data = df_results.to_csv(index=False).encode('utf-8')
             st.download_button(
-                label="📥 Download CSV",
+                label="📥 Download CSV with Contacts",
                 data=csv_data,
                 file_name=f"{selected_industry.replace(' ', '_')}_leads.csv",
                 mime="text/csv"
