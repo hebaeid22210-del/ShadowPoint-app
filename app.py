@@ -70,65 +70,124 @@ if st.sidebar.button("Log Out"):
     st.rerun()
 
 st.title("🏢 GCC Pan-Regional Lead Intelligence Platform")
-st.write(f"Welcome, **{st.session_state.get('company')}**! Target enterprise leads active across Saudi Arabia, UAE, Qatar, Kuwait, Bahrain, and Oman.")
+st.write(f"Welcome, **{st.session_state.get('company')}**! Target true enterprise leads and their specific business needs across the GCC.")
 
-# PRESET DATABASE OF PAN-GCC CONGLOMERATES
+# REAL PAN-GCC ENTERPRISE DATABASE WITH SPECIFIC NEEDS
 PRESET_GCC_COMPANIES = [
-    # Construction
-    {"Company Name": "Consolidated Contractors Company (CCC)", "Industry": "Construction & Contracting", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://www.ccc.net"},
-    {"Company Name": "Arabian Construction Company (ACC)", "Industry": "Construction & Contracting", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman", "Website": "https://www.accgroup.com"},
-    {"Company Name": "ALEC Engineering and Contracting", "Industry": "Construction & Contracting", "GCC Footprint": "KSA, UAE, Qatar, Oman", "Website": "https://alec.ae"},
-    {"Company Name": "BESIX / Six Construct", "Industry": "Construction & Contracting", "GCC Footprint": "KSA, UAE, Qatar, Bahrain, Oman", "Website": "https://www.besix.com"},
-    {"Company Name": "Shapoorji Pallonji Middle East", "Industry": "Construction & Contracting", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://www.shapoorjipallonji.com"},
-    
-    # Retail
-    {"Company Name": "Majid Al Futtaim (MAF)", "Industry": "Retail & Supermarkets", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://www.majidalfuttaim.com"},
-    {"Company Name": "Alshaya Group", "Industry": "Retail & Franchises", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://www.alshaya.com"},
-    {"Company Name": "Landmark Group", "Industry": "Retail & Fashion", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://www.landmarkgroup.com"},
-    {"Company Name": "Apparel Group", "Industry": "Retail & Lifestyle", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://apparelgroup.com"},
-    {"Company Name": "LuLu Group International", "Industry": "Retail & Hypermarkets", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://www.lulugroupintl.com"},
-    
-    # Manufacturing
-    {"Company Name": "SABIC", "Industry": "Manufacturing & Chemicals", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman", "Website": "https://www.sabic.com"},
-    {"Company Name": "RAK Ceramics", "Industry": "Manufacturing & Materials", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://www.rakceramics.com"},
-    {"Company Name": "Emirates Global Aluminium (EGA)", "Industry": "Manufacturing & Metals", "GCC Footprint": "KSA, UAE, Qatar, Oman", "Website": "https://www.ega.ae"},
-    {"Company Name": "Americana Group", "Industry": "Manufacturing & Food Processing", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://americanagroup.com"},
-    {"Company Name": "Obeikan Investment Group", "Industry": "Manufacturing & Packaging", "GCC Footprint": "KSA, UAE, Qatar, Oman, Bahrain", "Website": "https://obeikan.com.sa"},
-    
-    # Software
-    {"Company Name": "MDS SI (Midis System Integration)", "Industry": "Software & Enterprise IT", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman", "Website": "https://mdssi.com"},
-    {"Company Name": "Tata Consultancy Services (TCS) ME", "Industry": "Software & IT Services", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman", "Website": "https://www.tcs.com"},
-    {"Company Name": "Wipro Middle East", "Industry": "Software & Cloud Engineering", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman, Bahrain", "Website": "https://www.wipro.com"},
-    {"Company Name": "ScienceSoft Middle East", "Industry": "Software Development", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman", "Website": "https://www.scnsoft.com"},
-    {"Company Name": "Eurisko Mobility", "Industry": "Software & AI Solutions", "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman", "Website": "https://eurisko.com"}
+    # Construction & Contracting
+    {
+        "Company Name": "Consolidated Contractors Company (CCC)",
+        "Industry": "Construction & Contracting",
+        "Primary Need / Requirement": "Looking for Heavy Machinery & Material Suppliers",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman",
+        "Website": "https://www.ccc.net"
+    },
+    {
+        "Company Name": "Arabian Construction Company (ACC)",
+        "Industry": "Construction & Contracting",
+        "Primary Need / Requirement": "Facility & Operations Management / BIM Tools",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman",
+        "Website": "https://www.accgroup.com"
+    },
+    {
+        "Company Name": "ALEC Engineering and Contracting",
+        "Industry": "Construction & Contracting",
+        "Primary Need / Requirement": "ERP & Subcontractor Procurement Solutions",
+        "GCC Footprint": "KSA, UAE, Qatar, Oman",
+        "Website": "https://alec.ae"
+    },
+
+    # Retail & Franchises
+    {
+        "Company Name": "Majid Al Futtaim (MAF)",
+        "Industry": "Retail & Supermarkets",
+        "Primary Need / Requirement": "Digital Marketing & Omni-channel POS Tools",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman",
+        "Website": "https://www.majidalfuttaim.com"
+    },
+    {
+        "Company Name": "Alshaya Group",
+        "Industry": "Retail & Franchises",
+        "Primary Need / Requirement": "Supply Chain Automation & Logistics Management",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman",
+        "Website": "https://www.alshaya.com"
+    },
+    {
+        "Company Name": "Landmark Group",
+        "Industry": "Retail & Fashion",
+        "Primary Need / Requirement": "E-Commerce Infrastructure & Warehouse Automation",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman",
+        "Website": "https://www.landmarkgroup.com"
+    },
+
+    # Manufacturing & Industrial
+    {
+        "Company Name": "SABIC",
+        "Industry": "Manufacturing & Chemicals",
+        "Primary Need / Requirement": "Industrial Safety Equipment & Chemical ERP",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman",
+        "Website": "https://www.sabic.com"
+    },
+    {
+        "Company Name": "RAK Ceramics",
+        "Industry": "Manufacturing & Materials",
+        "Primary Need / Requirement": "Raw Material Suppliers & Export Logistics",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman",
+        "Website": "https://www.rakceramics.com"
+    },
+
+    # Software & Technology
+    {
+        "Company Name": "MDS SI (Midis System Integration)",
+        "Industry": "Software & Enterprise IT",
+        "Primary Need / Requirement": "Enterprise Cloud & Cybersecurity Solutions",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Bahrain, Oman",
+        "Website": "https://mdssi.com"
+    },
+    {
+        "Company Name": "Wipro Middle East",
+        "Industry": "Software & IT Services",
+        "Primary Need / Requirement": "IT Recruitment & Specialized Talent Sourcing",
+        "GCC Footprint": "KSA, UAE, Qatar, Kuwait, Oman, Bahrain",
+        "Website": "https://www.wipro.com"
+    }
 ]
 
 # SEARCH MODE SELECTION
-search_mode = st.radio("Choose Lead Generation Mode:", ["🏢 Built-in Pan-GCC Enterprise Companies", "🔍 Live Web & LinkedIn Scraper"], horizontal=True)
+search_mode = st.radio("Choose Lead Generation Mode:", ["🏢 Real GCC Companies & Their Needs", "🔍 Live Web & LinkedIn Scraper"], horizontal=True)
 
-if search_mode == "🏢 Built-in Pan-GCC Enterprise Companies":
-    st.subheader("📊 Major GCC Companies (Construction, Retail, Manufacturing, Software)")
+if search_mode == "🏢 Real GCC Companies & Their Needs":
+    st.subheader("📊 Target Enterprise Directory")
     
-    selected_ind = st.multiselect(
-        "Filter by Sector:", 
-        options=["Construction & Contracting", "Retail & Supermarkets", "Retail & Franchises", "Retail & Fashion", "Retail & Lifestyle", "Retail & Hypermarkets", "Manufacturing & Chemicals", "Manufacturing & Materials", "Manufacturing & Metals", "Manufacturing & Food Processing", "Manufacturing & Packaging", "Software & Enterprise IT", "Software & IT Services", "Software & Cloud Engineering", "Software Development", "Software & AI Solutions"],
-        default=[]
-    )
-    
+    col_a, col_b = st.columns(2)
+    with col_a:
+        industry_filter = st.multiselect(
+            "Filter by Industry:",
+            options=list(set(c["Industry"] for c in PRESET_GCC_COMPANIES)),
+            default=[]
+        )
+    with col_b:
+        need_filter = st.multiselect(
+            "Filter by Company Need:",
+            options=list(set(c["Primary Need / Requirement"] for c in PRESET_GCC_COMPANIES)),
+            default=[]
+        )
+
     df_preset = pd.DataFrame(PRESET_GCC_COMPANIES)
     
-    if selected_ind:
-        df_filtered = df_preset[df_preset["Industry"].isin(selected_ind)]
-    else:
-        df_filtered = df_preset
+    # Apply Filters
+    if industry_filter:
+        df_preset = df_preset[df_preset["Industry"].isin(industry_filter)]
+    if need_filter:
+        df_preset = df_preset[df_preset["Primary Need / Requirement"].isin(need_filter)]
         
-    st.dataframe(df_filtered, use_container_width=True)
+    st.dataframe(df_preset, use_container_width=True)
     
-    csv = df_filtered.to_csv(index=False).encode('utf-8')
+    csv = df_preset.to_csv(index=False).encode('utf-8')
     st.download_button(
-        label="📥 Download Selected GCC Enterprise Leads (CSV)",
+        label="📥 Download Enterprise Leads CSV",
         data=csv,
-        file_name="GCC_Enterprise_Leads.csv",
+        file_name="GCC_Enterprise_Leads_With_Needs.csv",
         mime="text/csv"
     )
 
@@ -136,29 +195,29 @@ else:
     # LIVE SCRAPER MODE
     GCC_CITIES = {
         "Riyadh, Saudi Arabia": {"lat": 24.7136, "lon": 46.6753},
-        "Jeddah, Saudi Arabia": {"lat": 21.5433, "lon": 39.1728},
         "Dubai, UAE": {"lat": 25.2048, "lon": 55.2708},
-        "Abu Dhabi, UAE": {"lat": 24.4539, "lon": 54.3773},
         "Doha, Qatar": {"lat": 25.2854, "lon": 51.5310},
         "Kuwait City, Kuwait": {"lat": 29.3759, "lon": 47.9774},
         "Manama, Bahrain": {"lat": 26.2285, "lon": 50.5860},
         "Muscat, Oman": {"lat": 23.5880, "lon": 58.3829},
     }
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
-        selected_location = st.selectbox("🌍 Select Target GCC City", list(GCC_CITIES.keys()))
+        selected_location = st.selectbox("🌍 Target City", list(GCC_CITIES.keys()))
     with col2:
-        source_type = st.selectbox("Source Platform", ["All Web Results", "LinkedIn Profiles Only (site:linkedin.com)"])
+        selected_industry = st.selectbox("🏭 Industry", ["Construction", "Retail", "Manufacturing", "Software"])
+    with col3:
+        selected_need = st.selectbox("🎯 Company Need", [
+            "Looking for Suppliers",
+            "Hiring & Recruitment",
+            "ERP Automation",
+            "Digital Marketing",
+            "Equipment & Machinery"
+        ])
     
-    search_query = st.text_input("🔍 Custom Industry Search", value="Construction and Contracting companies")
-
     if st.button("🚀 Fetch Live Leads", type="primary"):
-        if source_type == "LinkedIn Profiles Only (site:linkedin.com)":
-            full_search = f"site:linkedin.com/company/ {search_query} in {selected_location}"
-        else:
-            full_search = f"{search_query} contact phone number in {selected_location}"
-            
+        full_search = f"{selected_industry} companies {selected_need} in {selected_location}"
         st.info(f"Scanning web for: **{full_search}**...")
         
         encoded_query = urllib.parse.quote(full_search)
@@ -182,31 +241,33 @@ else:
                 link = url_elem["href"] if url_elem and "href" in url_elem.attrs else "#"
                 
                 raw_matches = [match.group(0) for match in re.finditer(r'\+?\d[\d\s-]{8,14}\d', snippet)]
-                phone_number = raw_matches[0].strip() if raw_matches else "N/A (Check Website)"
+                phone_number = raw_matches[0].strip() if raw_matches else "N/A (Check Link)"
                 
                 results.append({
                     "Lead #": f"LIVE-{idx}",
                     "Company Name": title,
-                    "Phone / Contact Info": phone_number,
+                    "Phone Number": phone_number,
+                    "Target Requirement": selected_need,
+                    "Industry": selected_industry,
                     "Location": selected_location,
-                    "Link / Profile": link,
+                    "Website": link,
                     "Snippet": snippet[:120] + "..." if len(snippet) > 120 else snippet
                 })
                 
             if results:
                 df_results = pd.DataFrame(results)
-                st.subheader("📊 Live Scraped Leads")
+                st.subheader("📊 Live Results")
                 st.dataframe(df_results, use_container_width=True)
                 
                 csv_data = df_results.to_csv(index=False).encode('utf-8')
                 st.download_button(
                     label="📥 Download Scraped CSV",
                     data=csv_data,
-                    file_name="scraped_gcc_leads.csv",
+                    file_name="scraped_leads.csv",
                     mime="text/csv"
                 )
             else:
-                st.warning("No search results returned. Try broadening the search query.")
+                st.warning("No results found. Try adjusting the search inputs.")
                 
         except Exception as e:
             st.error(f"Error fetching live data: {e}")
